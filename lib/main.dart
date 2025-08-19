@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
-import 'providers/spotify_providers.dart';
-import 'screens/auth_screen.dart';
-import 'screens/playlists_screen.dart';
+import 'features/auth/providers/auth_providers.dart';
+import 'features/auth/screens/auth_screen.dart';
+import 'features/playlists/screens/playlists_screen.dart';
+import 'shared/constants/app_theme.dart';
+import 'shared/constants/app_colors.dart';
 
 void main() {
   runApp(const ProviderScope(child: SpotifyAlbumerApp()));
@@ -17,13 +19,7 @@ class SpotifyAlbumerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Spotify Albumer',
-      theme: ThemeData(
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF1DB954),
-          secondary: Color(0xFF1DB954),
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.darkTheme,
       home: const MainScreen(),
     );
   }
@@ -112,26 +108,26 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             return const AuthScreen();
           }
         },
-        loading: () => const Scaffold(
-          backgroundColor: Color(0xFF191414),
-          body: Center(
+        loading: () => Scaffold(
+          backgroundColor: AppColors.spotifyBlack,
+          body: const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.music_note,
                   size: 80,
-                  color: Color(0xFF1DB954),
+                  color: AppColors.spotifyGreen,
                 ),
                 SizedBox(height: 32),
                 CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1DB954)),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.spotifyGreen),
                 ),
                 SizedBox(height: 16),
                 Text(
                   'Loading...',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: AppColors.white70,
                     fontSize: 16,
                   ),
                 ),

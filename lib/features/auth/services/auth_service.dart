@@ -5,14 +5,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../models/spotify_auth.dart';
-import '../models/playlist.dart';
 
-class SpotifyService {
+class AuthService {
   static const String clientId = 'd22dd3dd32a34060876238f6aab7b758';
   static const String redirectUri = 'spotifyalbumer.iwmh.com://iwmh.app/callback/';
   static const String authUrl = 'https://accounts.spotify.com/authorize';
   static const String tokenUrl = 'https://accounts.spotify.com/api/token';
-  static const String apiBaseUrl = 'https://api.spotify.com/v1';
   
   static const scopes = [
     // Read permissions
@@ -172,23 +170,6 @@ class SpotifyService {
       return auth;
     } else {
       throw Exception('Failed to refresh token: ${response.body}');
-    }
-  }
-
-  Future<List<Playlist>> getUserPlaylists(String accessToken) async {
-    final response = await http.get(
-      Uri.parse('$apiBaseUrl/me/playlists?limit=50'),
-      headers: {
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final items = data['items'] as List;
-      return items.map((item) => Playlist.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to fetch playlists: ${response.body}');
     }
   }
 

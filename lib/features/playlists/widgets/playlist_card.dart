@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/playlist.dart';
+import '../../../shared/constants/app_colors.dart';
 
 class PlaylistCard extends StatelessWidget {
   final Playlist playlist;
@@ -9,7 +10,7 @@ class PlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF282828),
+      color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
@@ -18,7 +19,7 @@ class PlaylistCard extends StatelessWidget {
           height: 56,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: const Color(0xFF404040),
+            color: AppColors.darkGray,
           ),
           child: playlist.imageUrl != null
               ? ClipRRect(
@@ -29,7 +30,7 @@ class PlaylistCard extends StatelessWidget {
                     errorBuilder: (context, error, stackTrace) {
                       return const Icon(
                         Icons.music_note,
-                        color: Colors.white54,
+                        color: AppColors.white54,
                         size: 28,
                       );
                     },
@@ -37,14 +38,14 @@ class PlaylistCard extends StatelessWidget {
                 )
               : const Icon(
                   Icons.music_note,
-                  color: Colors.white54,
+                  color: AppColors.white54,
                   size: 28,
                 ),
         ),
         title: Text(
           playlist.name,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.white,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -58,7 +59,7 @@ class PlaylistCard extends StatelessWidget {
               Text(
                 playlist.description!,
                 style: const TextStyle(
-                  color: Colors.white70,
+                  color: AppColors.white70,
                   fontSize: 12,
                 ),
                 maxLines: 1,
@@ -83,7 +84,7 @@ class PlaylistCard extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Tapped on ${playlist.name}'),
-              backgroundColor: const Color(0xFF1DB954),
+              backgroundColor: AppColors.spotifyGreen,
             ),
           );
         },

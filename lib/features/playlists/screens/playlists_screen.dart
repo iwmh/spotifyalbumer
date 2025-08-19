@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/spotify_providers.dart';
+import '../providers/playlist_providers.dart';
 import '../widgets/playlist_card.dart';
+import '../../auth/providers/auth_providers.dart';
+import '../../../shared/constants/app_colors.dart';
 
 class PlaylistsScreen extends ConsumerWidget {
   const PlaylistsScreen({Key? key}) : super(key: key);
@@ -11,17 +13,17 @@ class PlaylistsScreen extends ConsumerWidget {
     final playlistsAsync = ref.watch(playlistsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF191414),
+      backgroundColor: AppColors.spotifyBlack,
       appBar: AppBar(
         title: const Text(
           'Your Playlists',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF191414),
+        backgroundColor: AppColors.spotifyBlack,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: AppColors.white),
             onPressed: () => ref.read(authProvider.notifier).logout(),
           ),
         ],
@@ -33,7 +35,7 @@ class PlaylistsScreen extends ConsumerWidget {
               child: Text(
                 'No playlists found',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: AppColors.white70,
                   fontSize: 18,
                 ),
               ),
@@ -53,7 +55,7 @@ class PlaylistsScreen extends ConsumerWidget {
         },
         loading: () => const Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1DB954)),
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.spotifyGreen),
           ),
         ),
         error: (error, stack) => Center(
@@ -75,7 +77,7 @@ class PlaylistsScreen extends ConsumerWidget {
               ElevatedButton(
                 onPressed: () => ref.refresh(playlistsProvider),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1DB954),
+                  backgroundColor: AppColors.spotifyGreen,
                 ),
                 child: const Text('Retry'),
               ),

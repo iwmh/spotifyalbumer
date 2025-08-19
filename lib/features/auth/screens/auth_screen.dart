@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/spotify_providers.dart';
+import '../providers/auth_providers.dart';
+import '../../../shared/constants/app_colors.dart';
 
 class AuthScreen extends ConsumerWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -16,8 +17,8 @@ class AuthScreen extends ConsumerWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF1DB954), // Spotify Green
-              Color(0xFF191414), // Spotify Black
+              AppColors.spotifyGreen, // Spotify Green
+              AppColors.spotifyBlack, // Spotify Black
             ],
           ),
         ),
@@ -28,7 +29,7 @@ class AuthScreen extends ConsumerWidget {
               const Icon(
                 Icons.music_note,
                 size: 100,
-                color: Colors.white,
+                color: AppColors.white,
               ),
               const SizedBox(height: 24),
               const Text(
@@ -36,7 +37,7 @@ class AuthScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.white,
                 ),
               ),
               const SizedBox(height: 48),
@@ -68,8 +69,8 @@ class AuthScreen extends ConsumerWidget {
     return ElevatedButton(
       onPressed: () => ref.read(authProvider.notifier).login(),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF191414),
+        backgroundColor: AppColors.white,
+        foregroundColor: AppColors.spotifyBlack,
         padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25),
