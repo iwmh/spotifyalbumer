@@ -237,3 +237,4 @@ flutter clean && flutter pub get
 - When suggesting alternatives to Riverpod, justify why and for what specific use case
 - Remind about running `build_runner` when adding/modifying generated code
 - Repeat the "review the code and improve it", three times.
+- After code modifications, ensure no Linter warnings, Analyzer issues, or build errors remain across the entire codebase.
