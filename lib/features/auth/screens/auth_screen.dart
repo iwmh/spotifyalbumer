@@ -4,7 +4,7 @@ import '../providers/auth_providers.dart';
 import '../../../shared/constants/app_colors.dart';
 
 class AuthScreen extends ConsumerWidget {
-  const AuthScreen({Key? key}) : super(key: key);
+  const AuthScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

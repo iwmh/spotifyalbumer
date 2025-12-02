@@ -13,7 +13,7 @@ void main() {
 }
 
 class SpotifyAlbumerApp extends StatelessWidget {
-  const SpotifyAlbumerApp({Key? key}) : super(key: key);
+  const SpotifyAlbumerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class SpotifyAlbumerApp extends StatelessWidget {
 }
 
 class MainScreen extends ConsumerStatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
   ConsumerState<MainScreen> createState() => _MainScreenState();
@@ -52,13 +52,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         _handleIncomingLink(initialLink);
       }
     } catch (e) {
-      print('Failed to get initial link: $e');
+      debugPrint('Failed to get initial link: $e');
     }
 
     // Handle deep links when app is already open
     _linkSubscription = _appLinks.uriLinkStream.listen(
       _handleIncomingLink,
-      onError: (err) => print('Deep link error: $err'),
+      onError: (err) => debugPrint('Deep link error: $err'),
     );
   }
 
@@ -72,7 +72,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       final error = uri.queryParameters['error'];
 
       if (error != null) {
-        print('OAuth error: $error');
+        debugPrint('OAuth error: $error');
         return;
       }
 
@@ -82,7 +82,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         if (!isLoggedIn) {
           ref.read(authProvider.notifier).handleAuthCallback(code, state);
         } else {
-          print('Ignoring OAuth callback - user already logged in');
+          debugPrint('Ignoring OAuth callback - user already logged in');
         }
       }
     }

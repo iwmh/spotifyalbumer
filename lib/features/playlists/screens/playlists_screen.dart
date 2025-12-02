@@ -6,7 +6,7 @@ import '../../auth/providers/auth_providers.dart';
 import '../../../shared/constants/app_colors.dart';
 
 class PlaylistsScreen extends ConsumerWidget {
-  const PlaylistsScreen({Key? key}) : super(key: key);
+  const PlaylistsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

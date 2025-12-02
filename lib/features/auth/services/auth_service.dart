@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -64,12 +65,12 @@ class AuthService {
       queryParameters: params,
     );
 
-    print('Attempting to launch URL: $uri');
+    debugPrint('Attempting to launch URL: $uri');
 
     try {
       // Try different launch modes
       bool canLaunch = await canLaunchUrl(uri);
-      print('Can launch URL: $canLaunch');
+      debugPrint('Can launch URL: $canLaunch');
       
       if (canLaunch) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -78,12 +79,12 @@ class AuthService {
         await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
     } catch (e) {
-      print('Error launching URL: $e');
+      debugPrint('Error launching URL: $e');
       // Try launching with just the external browser
       try {
         await launchUrl(uri);
       } catch (e2) {
-        print('Secondary launch attempt failed: $e2');
+        debugPrint('Secondary launch attempt failed: $e2');
         throw Exception('Could not launch auth URL: $e2');
       }
     }

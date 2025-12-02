@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/spotify_auth.dart';
 import '../services/auth_service.dart';
@@ -45,13 +46,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<SpotifyAuth?>> {
       final auth = await _authService.exchangeCodeForTokens(code, state);
       this.state = AsyncValue.data(auth);
     } catch (e) {
-      print('Auth callback error: $e');
+      debugPrint('Auth callback error: $e');
       // Don't set error state if user is already authenticated
       final currentAuth = this.state.value;
       if (currentAuth == null || currentAuth.isExpired) {
         this.state = AsyncValue.error(e, StackTrace.current);
       } else {
-        print('Ignoring auth error - user already authenticated');
+        debugPrint('Ignoring auth error - user already authenticated');
       }
     }
   }
