@@ -236,3 +236,4 @@ flutter clean && flutter pub get
 - Suggest performance optimizations (provider scoping, `select`, etc.)
 - When suggesting alternatives to Riverpod, justify why and for what specific use case
 - Remind about running `build_runner` when adding/modifying generated code
+- Repeat the "review the code and improve it", three times.
