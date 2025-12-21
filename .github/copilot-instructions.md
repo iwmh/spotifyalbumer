@@ -241,3 +241,54 @@ fvm flutter clean && fvm flutter pub get
 - Remind about running `build_runner` when adding/modifying generated code
 - Repeat the "review the code and improve it", three times.
 - After code modifications, ensure no Linter warnings, Analyzer issues, or build errors remain across the entire codebase.
+
+## Human-Computer Interaction (HCI) & UX Guidance (IdF Encyclopedia-Inspired)
+
+Use the Interaction Design Foundation (IdF) Encyclopedia of Human-Computer Interaction (2nd ed.) as a **conceptual reference** for HCI principles when designing UI, navigation, interaction patterns, information architecture, and microcopy.
+
+Important constraints:
+- Do **not** claim to have read “all entries” of any external site.
+- Do **not** bulk-scrape, mirror, or reproduce copyrighted text.
+- If a specific entry’s details are needed, ask the user to provide a short excerpt or point to the exact section/topic; then summarize in your own words.
+- When online browsing is available, consult only the **minimum** number of relevant pages needed for the task and paraphrase; never copy passages verbatim.
+
+When implementing or reviewing UX in this app, apply this checklist:
+- **User goals & tasks**: Identify primary user goals (e.g., browse albums, save favorites, view details) and ensure flows are task-first.
+- **Information architecture**: Keep navigation predictable; group features by user intent; use clear labels.
+- **Mental models & mapping**: Make controls and outcomes feel obvious; align terminology with Spotify concepts.
+- **Feedback & system status**: Always show loading/progress, success confirmations, and actionable errors.
+- **Error prevention & recovery**: Validate early, provide safe defaults, allow undo where feasible, and make failure states recoverable.
+- **Consistency**: Keep layout, icons, terminology, and interactions consistent across features.
+- **Recognition over recall**: Prefer visible choices, sensible defaults, and progressive disclosure.
+- **Cognitive load**: Reduce steps and decision points; avoid dense screens; keep copy short.
+- **Accessibility & inclusive design**: Support dynamic text, contrast, screen readers/semantics, large tap targets; avoid color-only meaning.
+- **Performance & perceived performance**: Use skeletons/placeholders, optimistic UI only when safe, and fast first paint.
+
+Practical deliverables for any UX-affecting change:
+- Provide a short rationale using HCI concepts (paraphrased), not quotes.
+- Call out tradeoffs and the simplest acceptable implementation.
+- If introducing a new flow, propose a minimal usability check (e.g., 3-step scenario test) and add TODOs for future improvements only if requested.
+
+## UX Guidance (About Face / Cooper et al.-Inspired)
+
+Use the ideas from *About Face* (Alan Cooper and co-authors, e.g., Robert Reimann, David Cronin, Christopher Noessel) as a **conceptual reference** for interaction design and goal-directed design.
+
+Important constraints:
+- Do **not** claim to have read the entire book.
+- Do **not** reproduce book text, tables, or long passages.
+- If the user asks for a specific method or definition from the book, ask for a short excerpt or a chapter/section reference; then summarize in your own words.
+
+When designing new UI or flows, apply these goal-directed design checks:
+- **Define user goals first**: Start from what the user is trying to accomplish (e.g., “find an album”, “save it”, “revisit later”), not from features.
+- **Personas & scenarios (lightweight)**: If requirements are fuzzy, propose 1–2 simple personas and a short scenario to drive decisions; keep it minimal.
+- **Strong conceptual model**: Keep objects/actions consistent with user expectations (Spotify concepts, library/collection mental model).
+- **Progressive disclosure**: Show common actions up front; hide advanced actions until needed.
+- **Modeless interaction (when reasonable)**: Avoid forcing users into modes that change meaning of actions; prefer clear state and reversible actions.
+- **Forgiveness**: Prefer undo, confirm destructive actions, and make errors recoverable.
+- **Good defaults**: Choose sensible defaults to reduce decision load.
+- **Direct manipulation & clear affordances**: Make tappable elements look tappable; keep gestures discoverable.
+
+Practical deliverables for any UX-affecting change:
+- State the primary user goal and the “happy path” in 2–3 steps.
+- List key edge cases (offline, rate limit, auth expired) and what the UI does.
+- Keep UI minimal and consistent with existing app patterns and components.
