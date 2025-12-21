@@ -1,4 +1,4 @@
-package com.example.spotify_albumer
+package com.iwmh.spotifyalbumer
 
 import io.flutter.embedding.android.FlutterActivity
 
