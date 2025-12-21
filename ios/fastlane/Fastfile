@@ -1,0 +1,97 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    setup_ci if ENV['CI']
+    
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
+      key_filepath: File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_API_KEY_ID']}.p8"),
+      in_house: false
+    )
+    
+    match(
+      type: "appstore",
+      readonly: is_ci,
+      git_basic_authorization: Base64.strict_encode64(ENV["MATCH_GIT_BASIC_AUTHORIZATION"] || ""),
+      api_key: api_key
+    )
+    
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store",
+      output_directory: "../build/ios/ipa",
+      export_options: {
+        provisioningProfiles: {
+          "com.iwmh.spotifyalbumer" => "match AppStore com.iwmh.spotifyalbumer"
+        }
+      }
+    )
+    
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+  
+  desc "Push a new release build to App Store"
+  lane :release do
+    setup_ci if ENV['CI']
+    
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
+      key_filepath: File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_API_KEY_ID']}.p8"),
+      in_house: false
+    )
+    
+    match(
+      type: "appstore",
+      readonly: is_ci,
+      git_basic_authorization: Base64.strict_encode64(ENV["MATCH_GIT_BASIC_AUTHORIZATION"] || ""),
+      api_key: api_key
+    )
+    
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store",
+      output_directory: "../build/ios/ipa",
+      export_options: {
+        provisioningProfiles: {
+          "com.iwmh.spotifyalbumer" => "match AppStore com.iwmh.spotifyalbumer"
+        }
+      }
+    )
+    
+    upload_to_app_store(
+      api_key: api_key,
+      submit_for_review: false,
+      automatic_release: false,
+      skip_screenshots: true,
+      skip_metadata: true,
+      precheck_include_in_app_purchases: false
+    )
+  end
+  
+  desc "Register new devices"
+  lane :register_devices do
+    register_devices(
+      devices_file: "./devices.txt"
+    )
+    
+    match(
+      type: "development",
+      force_for_new_devices: true
+    )
+  end
+  
+  desc "Sync certificates and profiles"
+  lane :sync_certificates do
+    match(type: "development")
+    match(type: "appstore")
+  end
+end

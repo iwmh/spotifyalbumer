@@ -46,3 +46,37 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+
+# ===================================
+# Secrets and signing (DO NOT COMMIT)
+# ===================================
+
+# Android signing
+android/key.properties
+*.jks
+*.keystore
+android/app/upload-keystore.jks
+
+# iOS signing
+*.p8
+*.p12
+*.mobileprovision
+ios/fastlane/report.xml
+ios/fastlane/Preview.html
+ios/fastlane/screenshots/
+ios/fastlane/test_output/
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Credentials
+**/credentials/
+**/secrets/
+serviceAccountKey.json

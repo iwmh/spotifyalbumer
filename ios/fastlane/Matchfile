@@ -1,0 +1,18 @@
+# Git repository URL for certificates and profiles
+# Replace with your actual certificates repository
+git_url("https://github.com/YOUR_USERNAME/certificates.git")
+
+# Storage mode
+storage_mode("git")
+
+# Type of provisioning profile (appstore, adhoc, development, enterprise)
+type("appstore")
+
+# App identifier(s)
+app_identifier(["com.iwmh.spotifyalbumer"])
+
+# Your Apple Developer Team ID
+team_id(ENV["IOS_TEAM_ID"])
+
+# Username for Apple Developer Portal
+# username(ENV["APPLE_ID"])
