@@ -1,0 +1,5 @@
+# fastlane configuration
+# Values are intentionally driven by CI env vars so you don't commit identifiers.
+
+app_identifier(ENV.fetch("APP_IDENTIFIER"))
+team_id(ENV.fetch("APPLE_TEAM_ID"))
