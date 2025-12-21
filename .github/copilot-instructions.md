@@ -190,27 +190,29 @@ Before submitting code:
 
 ## Useful Commands
 
+**Important:** Always use `fvm` to run `flutter` and `dart` commands to ensure the correct SDK version is used.
+
 ```bash
 # Format code
-dart format .
+fvm dart format .
 
 # Analyze code
-flutter analyze
+fvm flutter analyze
 
 # Run code generation (Riverpod, Freezed, etc.)
-dart run build_runner build --delete-conflicting-outputs
+fvm dart run build_runner build --delete-conflicting-outputs
 
 # Watch for changes and auto-generate
-dart run build_runner watch --delete-conflicting-outputs
+fvm dart run build_runner watch --delete-conflicting-outputs
 
 # Run tests
-flutter test
+fvm flutter test
 
 # Run with specific flavor
-flutter run --flavor dev
+fvm flutter run --flavor dev
 
 # Clean build
-flutter clean && flutter pub get
+fvm flutter clean && fvm flutter pub get
 ```
 
 ## Resources
@@ -225,6 +227,7 @@ flutter clean && flutter pub get
 
 ## Notes for Copilot
 
+- **Always use `fvm` to run `flutter` and `dart` commands** (e.g., `fvm flutter run`, `fvm dart format .`) to ensure the correct SDK version is used.
 - Prioritize code readability and maintainability
 - **Always suggest Riverpod-based solutions** for state management and DI
 - Prefer code generation (`@riverpod`) over manual provider definitions
