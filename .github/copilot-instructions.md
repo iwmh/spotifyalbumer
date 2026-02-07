@@ -1,294 +1,160 @@
 # GitHub Copilot Instructions for spotify_albumer
 
-## Project Overview
+## プロジェクト概要
 
-This is a Flutter application that integrates with Spotify API to manage and view album collections. The project follows modern Flutter best practices and clean architecture principles.
+**Spotify Albumer**は、Spotifyアルバムコレクションを管理・閲覧するFlutterモバイルアプリケーションです。最新のFlutter（3.24+）、Dart（3.5+）、Riverpod状態管理を使用し、クリーンアーキテクチャと機能ファースト原則に従って構築されています。
 
-## Code Style and Conventions
+**コア技術:**
+- Flutter 3.24+（FVM経由）
+- Dart 3.5+
+- Riverpod 2.6+（状態管理とDI）
+- Spotify Web API統合
+- Material Design 3
 
-### General Dart/Flutter Guidelines
+## スキルとエージェント
 
-- Follow the [Effective Dart](https://dart.dev/guides/language/effective-dart) style guide
-- Use `dart format` for consistent code formatting
-- Enable and respect all lint rules defined in `analysis_options.yaml`
-- Prefer `const` constructors whenever possible for better performance
-- Use trailing commas for better formatting and diffs
+GitHub Copilotは、このプロジェクト用の専門的な**スキル**と**エージェント**にアクセスできます:
 
-### Naming Conventions
+### 📚 スキル（専門分野）
+特定のドメインに関する詳細な知識ベース:
 
-- **Files**: Use snake_case (e.g., `playlist_service.dart`)
-- **Classes**: Use PascalCase (e.g., `PlaylistRepository`)
-- **Variables/Functions**: Use camelCase (e.g., `getUserPlaylists`)
-- **Constants**: Use lowerCamelCase (e.g., `const maxRetries = 3`)
-- **Private members**: Prefix with underscore (e.g., `_privateMethod`)
+- **[Spotify Web API](skills/spotify-api/SKILL.md)**: OAuth、エンドポイント、レート制限、エラーハンドリング
+- **[Flutter & Dart](skills/flutter-dart/SKILL.md)**: 最新のFlutter/Dartパターン、ウィジェット、パフォーマンス
+- **[モバイルリリース](skills/mobile-release/SKILL.md)**: Android・iOSデプロイメント、署名、ストア申請
+- **[テスト](skills/testing/SKILL.md)**: ユニット、ウィジェット、統合テスト戦略
+- **[HCI & UX](skills/hci-ux/SKILL.md)**: ユーザー中心設計、アクセシビリティ、モバイルインタラクションパターン
 
-### Architecture Patterns
+### 🤖 エージェント（タスク専門家）
+特定のタスクに特化したワークフロー:
 
-- Follow **feature-first** folder structure (see `lib/features/`)
-- Use **Riverpod** as the primary state management and dependency injection solution
-- Organize code following Riverpod best practices:
-  - **Providers**: Define providers using code generation (`@riverpod` annotation)
-  - **Widgets**: Consume providers using `ConsumerWidget` or `Consumer`
-  - **Models**: Use immutable data classes (consider `freezed` for sealed unions)
-  - **Repositories**: Expose as providers for dependency injection
-  - **Services**: Define as providers for HTTP clients, storage, etc.
-- Place providers close to where they're used (feature-first)
-- Use `AsyncValue` to handle loading/error/data states consistently
-- Prefer `ref.watch` in build methods, `ref.read` in callbacks
-- Use `ref.listen` for side effects (navigation, showing dialogs, etc.)
-- Keep business logic in providers, not in widgets
-- Prefer composition over inheritance
+- **[機能開発者](agents/feature-developer.agent.md)**: 新機能のエンドツーエンド実装
+- **[コードレビュアー](agents/code-reviewer.agent.md)**: 包括的なコード品質レビュー
+- **[デバッガー](agents/debugger.agent.md)**: バグの診断と修正
 
-### State Management
+> **注意:** 特定のタスクに取り組む際、Copilotは関連するスキルとエージェントを自動的に適用し、コンテキストを考慮した支援を提供します。
 
-- **Primary**: Use **Riverpod** for all state management and dependency injection
-- **Code generation**: Prefer `@riverpod` annotations over manual provider definitions
-- **AsyncValue**: Always use `AsyncValue<T>` for asynchronous operations
-  ```dart
-  @riverpod
-  Future<User> user(Ref ref, String id) async {
-    // Automatically wrapped in AsyncValue
-    return repository.fetchUser(id);
-  }
-  ```
-- **State immutability**: Keep all state immutable (use `freezed` or `built_value` for complex models)
-- **Error handling**: Handle errors using `AsyncValue.when` or pattern matching
-- **Auto-dispose**: Let Riverpod auto-dispose providers when no longer needed
-- **Family modifiers**: Use `.family` for parameterized providers
-- **Notifiers**: Use `Notifier`/`AsyncNotifier` for complex mutable state
-- **Alternative libraries**: Consider using complementary packages when beneficial:
-  - `flutter_hooks` with `hooks_riverpod` for local widget state
-  - `freezed` for immutable models and sealed unions
-  - `state_notifier` for complex state machines (if not using Notifier classes)
-- Avoid unnecessary rebuilds by using `select` to watch specific properties
+## クイックスタート
 
-### Async Programming
+### 必須コマンド
 
-- Always handle errors in async operations using `AsyncValue` from Riverpod
-- Use `async`/`await` for better readability over raw Futures
-- **Prefer Riverpod providers** over `FutureBuilder`/`StreamBuilder` for reactive UI
-- Use `@riverpod` for async data fetching - it automatically handles caching and updates
-- For streams, use `@riverpod` with `Stream<T>` return type
-- Avoid blocking the main thread with heavy computations
-- Use `ref.invalidate()` to trigger refetch when needed
-- Use `ref.refresh()` for pull-to-refresh functionality
-
-### Widget Best Practices
-
-- Extract reusable widgets into separate files under `lib/shared/widgets/`
-- Keep widget build methods short and readable
-- Use `const` constructors for stateless widgets when possible
-- **Prefer `ConsumerWidget`** over `StatefulWidget` for Riverpod integration
-- Use `Consumer` for surgical rebuilds when only part of the widget needs to listen
-- Use `HookConsumerWidget` when combining hooks with Riverpod
-- Avoid using `StatefulWidget` - use Riverpod providers for state instead
-- Use meaningful widget names that describe their purpose
-- Keep UI logic minimal - delegate to providers
-
-### Error Handling
-
-- Always catch and handle exceptions appropriately
-- Provide meaningful error messages to users
-- Log errors for debugging purposes
-- Use custom exception classes for domain-specific errors
-- Handle network failures gracefully with retry mechanisms
-
-### Testing
-
-- Write unit tests for business logic and utilities
-- Write widget tests for UI components
-- Write integration tests for critical user flows
-- Aim for high test coverage on business logic
-- Mock external dependencies in tests
-- Keep tests simple, readable, and maintainable
-
-### Comments and Documentation
-
-- Write self-documenting code with clear names
-- Add doc comments (`///`) for public APIs
-- Explain "why" rather than "what" in comments
-- Keep comments up-to-date with code changes
-- Document complex algorithms or business rules
-
-### Performance
-
-- Use `const` constructors to reduce widget rebuilds
-- Avoid unnecessary rebuilds with proper use of keys
-- Use `ListView.builder` for long lists
-- Cache expensive computations
-- Profile the app regularly to identify performance bottlenecks
-- Optimize images and assets
-
-### Dependencies
-
-- Keep dependencies up-to-date
-- Prefer well-maintained, popular packages
-- Avoid adding unnecessary dependencies
-- Check package pub.dev scores before adding
-- Pin dependency versions for stability
-- **Core dependencies for this project**:
-  - `flutter_riverpod` / `hooks_riverpod` - State management
-  - `riverpod_annotation` / `riverpod_generator` - Code generation
-  - `freezed` / `freezed_annotation` - Immutable models
-  - `json_serializable` - JSON serialization
-  - Consider `dio` for advanced HTTP needs over `http`
-
-## Project-Specific Guidelines
-
-### Spotify API Integration
-
-- Store API credentials securely (never commit secrets)
-- Handle authentication tokens properly
-- Implement token refresh mechanisms
-- Respect API rate limits
-- Cache responses when appropriate
-
-### Feature Development
-
-- Create new features under `lib/features/`
-- Each feature should be self-contained with its own providers
-- Typical feature structure:
-  ```
-  lib/features/feature_name/
-    ├── data/           # Data models, DTOs
-    ├── domain/         # Business logic, entities
-    ├── presentation/   # Widgets, pages
-    └── providers/      # Riverpod providers (or colocated with files)
-  ```
-- Place providers close to where they're used (colocation is encouraged)
-- Share common code via `lib/shared/`
-- Share common providers via `lib/shared/providers/`
-- Follow existing feature structure as a template
-- Each feature can export its public API through a barrel file
-
-### Assets and Resources
-
-- Place images in appropriate folders under `assets/`
-- Update `pubspec.yaml` when adding new assets
-- Use SVG for icons when possible
-- Optimize image sizes for mobile
-
-### Security
-
-- Never commit API keys, secrets, or tokens
-- Use `flutter_secure_storage` for sensitive data
-- Validate and sanitize user inputs
-- Follow OWASP mobile security guidelines
-
-## Code Review Checklist
-
-Before submitting code:
-
-- [ ] Code follows style guide and conventions
-- [ ] All lint warnings are resolved
-- [ ] Unit tests are written and passing
-- [ ] No debug print statements or commented code
-- [ ] Error handling is implemented
-- [ ] Documentation is updated if needed
-- [ ] Performance implications are considered
-- [ ] Security best practices are followed
-
-## Useful Commands
-
-**Important:** Always use `fvm` to run `flutter` and `dart` commands to ensure the correct SDK version is used.
+**常に`fvm`を使用して正しいSDKバージョンを確保:**
 
 ```bash
-# Format code
-fvm dart format .
-
-# Analyze code
-fvm flutter analyze
-
-# Run code generation (Riverpod, Freezed, etc.)
+# コード生成（@riverpod、freezedなどを変更した後）
 fvm dart run build_runner build --delete-conflicting-outputs
 
-# Watch for changes and auto-generate
+# Watchモード（ファイル保存時に自動生成）
 fvm dart run build_runner watch --delete-conflicting-outputs
 
-# Run tests
+# コードをフォーマット
+fvm dart format .
+
+# コードを分析
+fvm flutter analyze
+
+# テストを実行
 fvm flutter test
 
-# Run with specific flavor
-fvm flutter run --flavor dev
+# アプリを実行
+fvm flutter run
 
-# Clean build
+# クリーンビルド
 fvm flutter clean && fvm flutter pub get
 ```
 
-## Resources
+## アーキテクチャ概要
 
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Effective Dart](https://dart.dev/guides/language/effective-dart)
-- [Riverpod Documentation](https://riverpod.dev/)
-- [Riverpod Architecture Guidelines](https://riverpod.dev/docs/concepts/about_code_generation)
-- [Spotify API Documentation](https://developer.spotify.com/documentation/web-api)
-- [Flutter Best Practices](https://docs.flutter.dev/perf/best-practices)
-- [Freezed Package](https://pub.dev/packages/freezed)
+### 機能ファースト構造
+```
+lib/
+├── main.dart
+├── features/              # 機能モジュール（auth、playlistsなど）
+│   └── feature_name/
+│       ├── data/          # モデル、リポジトリ
+│       ├── presentation/  # スクリーン、ウィジェット
+│       └── providers/     # Riverpodプロバイダー
+└── shared/                # 共有コード（ウィジェット、ユーティリティ）
+```
 
-## Notes for Copilot
+### コアの原則
+- **状態管理**: コード生成を使用したRiverpod（`@riverpod`）
+- **データモデル**: 不変性のためのFreezed
+- **API統合**: OAuth 2.0 PKCEを使用したSpotify Web API
+- **エラーハンドリング**: すべての非同期操作にAsyncValue
+- **テスト**: 包括的なユニット、ウィジェット、統合テスト
 
-- **Always use `fvm` to run `flutter` and `dart` commands** (e.g., `fvm flutter run`, `fvm dart format .`) to ensure the correct SDK version is used.
-- Prioritize code readability and maintainability
-- **Always suggest Riverpod-based solutions** for state management and DI
-- Prefer code generation (`@riverpod`) over manual provider definitions
-- Use `AsyncValue` for all async operations - show pattern matching examples
-- Suggest idiomatic Dart/Flutter/Riverpod solutions
-- Consider mobile-specific constraints (battery, network, memory)
-- Generate null-safe code
-- Provide examples from official Riverpod documentation when relevant
-- Suggest performance optimizations (provider scoping, `select`, etc.)
-- When suggesting alternatives to Riverpod, justify why and for what specific use case
-- Remind about running `build_runner` when adding/modifying generated code
-- Repeat the "review the code and improve it", three times.
-- After code modifications, ensure no Linter warnings, Analyzer issues, or build errors remain across the entire codebase.
+## 主要な規約
 
-## Human-Computer Interaction (HCI) & UX Guidance (IdF Encyclopedia-Inspired)
+### 命名規則
+- **ファイル**: `snake_case.dart`
+- **クラス**: `PascalCase`
+- **変数/関数**: `camelCase`
+- **プライベート**: `_prefixWithUnderscore`
 
-Use the Interaction Design Foundation (IdF) Encyclopedia of Human-Computer Interaction (2nd ed.) as a **conceptual reference** for HCI principles when designing UI, navigation, interaction patterns, information architecture, and microcopy.
+### Riverpodパターン
+```dart
+// ✅ 推奨: コード生成
+@riverpod
+class FeatureNotifier extends _$FeatureNotifier {
+  @override
+  FutureOr<State> build() async => initialState;
+}
 
-Important constraints:
-- Do **not** claim to have read “all entries” of any external site.
-- Do **not** bulk-scrape, mirror, or reproduce copyrighted text.
-- If a specific entry’s details are needed, ask the user to provide a short excerpt or point to the exact section/topic; then summarize in your own words.
-- When online browsing is available, consult only the **minimum** number of relevant pages needed for the task and paraphrase; never copy passages verbatim.
+// ✅ ウィジェットで使用
+class MyWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(featureProvider).when(
+      data: (data) => DataView(data),
+      loading: () => LoadingIndicator(),
+      error: (error, stack) => ErrorView(error),
+    );
+  }
+}
+```
 
-When implementing or reviewing UX in this app, apply this checklist:
-- **User goals & tasks**: Identify primary user goals (e.g., browse albums, save favorites, view details) and ensure flows are task-first.
-- **Information architecture**: Keep navigation predictable; group features by user intent; use clear labels.
-- **Mental models & mapping**: Make controls and outcomes feel obvious; align terminology with Spotify concepts.
-- **Feedback & system status**: Always show loading/progress, success confirmations, and actionable errors.
-- **Error prevention & recovery**: Validate early, provide safe defaults, allow undo where feasible, and make failure states recoverable.
-- **Consistency**: Keep layout, icons, terminology, and interactions consistent across features.
-- **Recognition over recall**: Prefer visible choices, sensible defaults, and progressive disclosure.
-- **Cognitive load**: Reduce steps and decision points; avoid dense screens; keep copy short.
-- **Accessibility & inclusive design**: Support dynamic text, contrast, screen readers/semantics, large tap targets; avoid color-only meaning.
-- **Performance & perceived performance**: Use skeletons/placeholders, optimistic UI only when safe, and fast first paint.
+### コード品質要件
+- ✅ すべてのanalyzer警告を解決
+- ✅ `dart format`でコードをフォーマット
+- ✅ テストが通る
+- ✅ すべてのAsyncValue状態を処理（data、loading、error）
+- ✅ デバッグprintやコメントアウトされたコードなし
+- ✅ アクセシビリティを考慮（セマンティクス、コントラスト、タッチターゲット）
 
-Practical deliverables for any UX-affecting change:
-- Provide a short rationale using HCI concepts (paraphrased), not quotes.
-- Call out tradeoffs and the simplest acceptable implementation.
-- If introducing a new flow, propose a minimal usability check (e.g., 3-step scenario test) and add TODOs for future improvements only if requested.
+## プロジェクト固有のルール
 
-## UX Guidance (About Face / Cooper et al.-Inspired)
+### Spotify API
+- 認証情報をコミットしない（環境変数を使用）
+- 期限切れトークンのリフレッシュを実装
+- 指数バックオフでレート制限を処理
+- 適切な場合はレスポンスをキャッシュ
 
-Use the ideas from *About Face* (Alan Cooper and co-authors, e.g., Robert Reimann, David Cronin, Christopher Noessel) as a **conceptual reference** for interaction design and goal-directed design.
+### セキュリティ
+- トークンに`flutter_secure_storage`を使用
+- すべてのユーザー入力を検証
+- 機密データをログに記録しない
 
-Important constraints:
-- Do **not** claim to have read the entire book.
-- Do **not** reproduce book text, tables, or long passages.
-- If the user asks for a specific method or definition from the book, ask for a short excerpt or a chapter/section reference; then summarize in your own words.
+### UXガイドライン
+- すべての非同期操作にローディング状態を表示
+- リトライオプション付きの明確なエラーメッセージを提供
+- 動的なテキストサイズとハイコントラストをサポート
+- 最小タッチターゲット: 44x44pt
 
-When designing new UI or flows, apply these goal-directed design checks:
-- **Define user goals first**: Start from what the user is trying to accomplish (e.g., “find an album”, “save it”, “revisit later”), not from features.
-- **Personas & scenarios (lightweight)**: If requirements are fuzzy, propose 1–2 simple personas and a short scenario to drive decisions; keep it minimal.
-- **Strong conceptual model**: Keep objects/actions consistent with user expectations (Spotify concepts, library/collection mental model).
-- **Progressive disclosure**: Show common actions up front; hide advanced actions until needed.
-- **Modeless interaction (when reasonable)**: Avoid forcing users into modes that change meaning of actions; prefer clear state and reversible actions.
-- **Forgiveness**: Prefer undo, confirm destructive actions, and make errors recoverable.
-- **Good defaults**: Choose sensible defaults to reduce decision load.
-- **Direct manipulation & clear affordances**: Make tappable elements look tappable; keep gestures discoverable.
+## リソース
 
-Practical deliverables for any UX-affecting change:
-- State the primary user goal and the “happy path” in 2–3 steps.
-- List key edge cases (offline, rate limit, auth expired) and what the UI does.
-- Keep UI minimal and consistent with existing app patterns and components.
+- [Effective Dart](https://dart.dev/effective-dart)
+- [Flutter Docs](https://docs.flutter.dev/)
+- [Riverpod Docs](https://riverpod.dev/)
+- [Spotify Web API](https://developer.spotify.com/documentation/web-api)
+- [Material Design 3](https://m3.material.io/)
+
+## Copilotとの作業
+
+ヘルプをリクエストする際:
+- **機能の場合**: "feature-developerエージェントに従って[機能]を実装"
+- **レビューの場合**: "code-reviewer基準を使用してこのコードをレビュー"
+- **バグの場合**: "debuggerエージェントを使用してこの問題をデバッグ"
+- **API作業の場合**: "Spotify APIスキルを使用して[エンドポイント]を実装"
+- **UXの場合**: "HCI/UXガイドラインに従ってこのスクリーンを設計"
+
+Copilotは、適切なスキルとエージェントを自動的に参照し、簡潔で焦点を絞ったインタラクションを維持しながら、コンテキストを考慮した支援を提供します。
