@@ -26,11 +26,7 @@ class AuthScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.music_note,
-                size: 100,
-                color: AppColors.white,
-              ),
+              const Icon(Icons.music_note, size: 100, color: AppColors.white),
               const SizedBox(height: 24),
               const Text(
                 'Spotify Albumer',
@@ -43,20 +39,22 @@ class AuthScreen extends ConsumerWidget {
               const SizedBox(height: 48),
               authState.when(
                 data: (auth) => _buildLoginButton(context, ref),
-                loading: () => const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-                error: (error, stack) => Column(
-                  children: [
-                    Text(
-                      'Error: ${error.toString()}',
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
+                loading:
+                    () => const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
-                    const SizedBox(height: 16),
-                    _buildLoginButton(context, ref),
-                  ],
-                ),
+                error:
+                    (error, stack) => Column(
+                      children: [
+                        Text(
+                          'Error: ${error.toString()}',
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildLoginButton(context, ref),
+                      ],
+                    ),
               ),
             ],
           ),
@@ -72,16 +70,11 @@ class AuthScreen extends ConsumerWidget {
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.spotifyBlack,
         padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       ),
       child: const Text(
         'Login with Spotify',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }

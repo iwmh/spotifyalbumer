@@ -18,7 +18,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SpotifyAuth?>> {
     try {
       // Clear any leftover OAuth state from previous sessions
       await _authService.clearOAuthState();
-      
+
       final auth = await _authService.getStoredAuth();
       if (auth != null && !auth.isExpired) {
         state = AsyncValue.data(auth);
@@ -76,10 +76,11 @@ class AuthNotifier extends StateNotifier<AsyncValue<SpotifyAuth?>> {
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<SpotifyAuth?>>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  return AuthNotifier(authService);
-});
+final authProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<SpotifyAuth?>>((ref) {
+      final authService = ref.watch(authServiceProvider);
+      return AuthNotifier(authService);
+    });
 
 final isLoggedInProvider = Provider<bool>((ref) {
   final authState = ref.watch(authProvider);

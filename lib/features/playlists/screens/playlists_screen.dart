@@ -34,10 +34,7 @@ class PlaylistsScreen extends ConsumerWidget {
             return const Center(
               child: Text(
                 'No playlists found',
-                style: TextStyle(
-                  color: AppColors.white70,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: AppColors.white70, fontSize: 18),
               ),
             );
           }
@@ -53,37 +50,37 @@ class PlaylistsScreen extends ConsumerWidget {
             ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.spotifyGreen),
-          ),
-        ),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 64,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Error loading playlists:\n${error.toString()}',
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.refresh(playlistsProvider),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.spotifyGreen,
+        loading:
+            () => const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.spotifyGreen,
                 ),
-                child: const Text('Retry'),
               ),
-            ],
-          ),
-        ),
+            ),
+        error:
+            (error, stack) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error loading playlists:\n${error.toString()}',
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => ref.refresh(playlistsProvider),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.spotifyGreen,
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
       ),
     );
   }

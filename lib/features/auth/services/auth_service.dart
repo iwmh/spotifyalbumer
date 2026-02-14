@@ -9,10 +9,11 @@ import '../models/spotify_auth.dart';
 
 class AuthService {
   static const String clientId = 'd22dd3dd32a34060876238f6aab7b758';
-  static const String redirectUri = 'spotifyalbumer.iwmh.com://iwmh.app/callback/';
+  static const String redirectUri =
+      'spotifyalbumer.iwmh.com://iwmh.app/callback/';
   static const String authUrl = 'https://accounts.spotify.com/authorize';
   static const String tokenUrl = 'https://accounts.spotify.com/api/token';
-  
+
   static const scopes = [
     // Read permissions
     'playlist-read-private',
@@ -32,9 +33,13 @@ class AuthService {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   String _generateRandomString(int length) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
     final random = Random.secure();
-    return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join();
+    return List.generate(
+      length,
+      (index) => chars[random.nextInt(chars.length)],
+    ).join();
   }
 
   String _generateCodeChallenge(String codeVerifier) {
@@ -61,9 +66,7 @@ class AuthService {
       'scope': scopes.join(' '),
     };
 
-    final uri = Uri.parse(authUrl).replace(
-      queryParameters: params,
-    );
+    final uri = Uri.parse(authUrl).replace(queryParameters: params);
 
     debugPrint('Attempting to launch URL: $uri');
 
@@ -71,7 +74,7 @@ class AuthService {
       // Try different launch modes
       bool canLaunch = await canLaunchUrl(uri);
       debugPrint('Can launch URL: $canLaunch');
-      
+
       if (canLaunch) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
@@ -105,9 +108,7 @@ class AuthService {
 
     final response = await http.post(
       Uri.parse(tokenUrl),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'client_id': clientId,
         'grant_type': 'authorization_code',
@@ -120,11 +121,14 @@ class AuthService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final auth = SpotifyAuth.fromJson(data);
-      
-      await _storage.write(key: 'spotify_auth', value: json.encode(auth.toJson()));
+
+      await _storage.write(
+        key: 'spotify_auth',
+        value: json.encode(auth.toJson()),
+      );
       await _storage.delete(key: 'code_verifier');
       await _storage.delete(key: 'auth_state');
-      
+
       return auth;
     } else {
       throw Exception('Failed to exchange code for tokens: ${response.body}');
@@ -148,9 +152,7 @@ class AuthService {
   Future<SpotifyAuth> refreshToken(String refreshToken) async {
     final response = await http.post(
       Uri.parse(tokenUrl),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'grant_type': 'refresh_token',
         'refresh_token': refreshToken,
@@ -166,8 +168,11 @@ class AuthService {
         expiresIn: data['expires_in'],
         expiresAt: DateTime.now().add(Duration(seconds: data['expires_in'])),
       );
-      
-      await _storage.write(key: 'spotify_auth', value: json.encode(auth.toJson()));
+
+      await _storage.write(
+        key: 'spotify_auth',
+        value: json.encode(auth.toJson()),
+      );
       return auth;
     } else {
       throw Exception('Failed to refresh token: ${response.body}');

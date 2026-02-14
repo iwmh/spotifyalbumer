@@ -63,10 +63,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   void _handleIncomingLink(Uri uri) {
-    if (uri.scheme == 'spotifyalbumer.iwmh.com' && 
-        uri.host == 'iwmh.app' && 
+    if (uri.scheme == 'spotifyalbumer.iwmh.com' &&
+        uri.host == 'iwmh.app' &&
         uri.path == '/callback/') {
-      
       final code = uri.queryParameters['code'];
       final state = uri.queryParameters['state'];
       final error = uri.queryParameters['error'];
@@ -97,7 +96,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: authState.when(
@@ -108,33 +107,33 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             return const AuthScreen();
           }
         },
-        loading: () => Scaffold(
-          backgroundColor: AppColors.spotifyBlack,
-          body: const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.music_note,
-                  size: 80,
-                  color: AppColors.spotifyGreen,
+        loading:
+            () => Scaffold(
+              backgroundColor: AppColors.spotifyBlack,
+              body: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.music_note,
+                      size: 80,
+                      color: AppColors.spotifyGreen,
+                    ),
+                    SizedBox(height: 32),
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColors.spotifyGreen,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading...',
+                      style: TextStyle(color: AppColors.white70, fontSize: 16),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 32),
-                CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.spotifyGreen),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Loading...',
-                  style: TextStyle(
-                    color: AppColors.white70,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
         error: (error, stack) => const AuthScreen(),
       ),
     );

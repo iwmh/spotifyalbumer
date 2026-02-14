@@ -23,7 +23,8 @@ class Playlist {
       name: json['name'],
       description: json['description'],
       totalTracks: json['tracks']['total'],
-      imageUrl: json['images']?.isNotEmpty == true ? json['images'][0]['url'] : null,
+      imageUrl:
+          json['images']?.isNotEmpty == true ? json['images'][0]['url'] : null,
       ownerId: json['owner']['id'],
       ownerDisplayName: json['owner']['display_name'],
     );

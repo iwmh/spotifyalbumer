@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/playlist.dart';
+import '../screens/playlist_detail_screen.dart';
 import '../../../shared/constants/app_colors.dart';
 
 class PlaylistCard extends StatelessWidget {
@@ -21,26 +22,27 @@ class PlaylistCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             color: AppColors.darkGray,
           ),
-          child: playlist.imageUrl != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    playlist.imageUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.music_note,
-                        color: AppColors.white54,
-                        size: 28,
-                      );
-                    },
+          child:
+              playlist.imageUrl != null
+                  ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      playlist.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.music_note,
+                          color: AppColors.white54,
+                          size: 28,
+                        );
+                      },
+                    ),
+                  )
+                  : const Icon(
+                    Icons.music_note,
+                    color: AppColors.white54,
+                    size: 28,
                   ),
-                )
-              : const Icon(
-                  Icons.music_note,
-                  color: AppColors.white54,
-                  size: 28,
-                ),
         ),
         title: Text(
           playlist.name,
@@ -55,36 +57,26 @@ class PlaylistCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (playlist.description != null && playlist.description!.isNotEmpty)
+            if (playlist.description != null &&
+                playlist.description!.isNotEmpty)
               Text(
                 playlist.description!,
-                style: const TextStyle(
-                  color: AppColors.white70,
-                  fontSize: 12,
-                ),
+                style: const TextStyle(color: AppColors.white70, fontSize: 12),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             const SizedBox(height: 4),
             Text(
               '${playlist.totalTracks} tracks • ${playlist.ownerDisplayName ?? 'Unknown'}',
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
           ],
         ),
-        trailing: const Icon(
-          Icons.more_vert,
-          color: Colors.white54,
-        ),
+        trailing: const Icon(Icons.chevron_right, color: Colors.white54),
         onTap: () {
-          // TODO: Navigate to playlist details
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Tapped on ${playlist.name}'),
-              backgroundColor: AppColors.spotifyGreen,
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => PlaylistDetailScreen(playlist: playlist),
             ),
           );
         },
