@@ -13,6 +13,10 @@ void main() {
         name: 'Test Track',
         artists: ['Artist 1', 'Artist 2'],
         albumName: 'Test Album',
+        albumId: 'album123',
+        albumType: 'album',
+        albumTotalTracks: 12,
+        albumReleaseDate: '2023-01-01',
         albumImageUrl: 'https://example.com/album.jpg',
         durationMs: 195000, // 3:15
         uri: 'spotify:track:track123',
@@ -45,6 +49,10 @@ void main() {
         name: 'No Image Track',
         artists: ['Artist'],
         albumName: 'Album',
+        albumId: 'album456',
+        albumType: 'album',
+        albumTotalTracks: 10,
+        albumReleaseDate: '2023-02-01',
         durationMs: 120000,
         uri: 'spotify:track:track456',
       );
@@ -105,6 +113,10 @@ void main() {
         name: 'This is a very long track name that should be truncated',
         artists: ['Artist'],
         albumName: 'Album',
+        albumId: 'album789',
+        albumType: 'album',
+        albumTotalTracks: 10,
+        albumReleaseDate: '2023-03-01',
         durationMs: 180000,
         uri: 'spotify:track:track789',
       );
@@ -131,6 +143,10 @@ void main() {
         name: 'Short',
         artists: ['Artist'],
         albumName: 'Album',
+        albumId: 'album_short',
+        albumType: 'album',
+        albumTotalTracks: 10,
+        albumReleaseDate: '2023-04-01',
         durationMs: 65000, // 1:05
         uri: 'spotify:track:short',
       );

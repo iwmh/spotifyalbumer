@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../playlists/models/playlist.dart';
-import '../providers/playlist_tracks_provider.dart';
-import '../widgets/track_list_item.dart';
+import '../providers/playlist_albums_provider.dart';
+import '../widgets/album_list_item.dart';
 import '../../../shared/constants/app_colors.dart';
 
 /// プレイリスト詳細画面
-/// プレイリストに含まれるトラックの一覧を表示する
+/// プレイリストに含まれるトラックから抽出したアルバムの一覧を表示する
 class PlaylistDetailScreen extends ConsumerWidget {
   /// 表示するプレイリスト情報
   final Playlist playlist;
@@ -15,8 +15,10 @@ class PlaylistDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // プレイリストのトラック一覧を監視
-    final tracksAsync = ref.watch(playlistTracksProvider(playlist.id));
+    // プレイリストのアルバム一覧を監視
+    final albumsAsync = ref.watch(filteredAlbumsProvider(playlist.id));
+    // シングル表示状態を監視
+    final includeSingles = ref.watch(includeSinglesProvider);
 
     return Scaffold(
       backgroundColor: AppColors.spotifyBlack,
@@ -24,10 +26,10 @@ class PlaylistDetailScreen extends ConsumerWidget {
       body: RefreshIndicator(
         // 引き下げ更新時の処理
         onRefresh: () async {
-          // プロバイダーをリフレッシュしてトラック一覧を再取得
-          ref.invalidate(playlistTracksProvider(playlist.id));
+          // プロバイダーをリフレッシュしてアルバム一覧を再取得
+          ref.invalidate(playlistAlbumsProvider(playlist.id));
           // リフレッシュが完了するまで待機
-          await ref.read(playlistTracksProvider(playlist.id).future);
+          await ref.read(filteredAlbumsProvider(playlist.id).future);
         },
         color: AppColors.spotifyGreen,
         backgroundColor: AppColors.darkGray,
@@ -39,6 +41,36 @@ class PlaylistDetailScreen extends ConsumerWidget {
               pinned: true, // スクロール時も表示を維持
               backgroundColor: AppColors.spotifyBlack,
               iconTheme: const IconThemeData(color: AppColors.white),
+              // Show Singlesトグルをactionsに配置
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Singles',
+                        style: TextStyle(
+                          color: includeSingles
+                              ? AppColors.spotifyGreen
+                              : AppColors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Switch(
+                        value: includeSingles,
+                        onChanged: (value) {
+                          ref.read(includeSinglesProvider.notifier).state =
+                              value;
+                        },
+                        activeColor: AppColors.spotifyGreen,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
                   playlist.name,
@@ -125,35 +157,40 @@ class PlaylistDetailScreen extends ConsumerWidget {
                         fontSize: 12,
                       ),
                     ),
-                    const SizedBox(height: 16),
                   ],
                 ),
               ),
             ),
-            // トラックリスト
-            tracksAsync.when(
+            // アルバムリスト
+            albumsAsync.when(
               // データ取得成功時
-              data: (tracks) {
-                // トラックが空の場合のメッセージ
-                if (tracks.isEmpty) {
-                  return const SliverFillRemaining(
+              data: (albums) {
+                // アルバムが空の場合のメッセージ
+                if (albums.isEmpty) {
+                  return SliverFillRemaining(
                     child: Center(
                       child: Text(
-                        'No tracks in this playlist',
-                        style: TextStyle(
+                        includeSingles
+                            ? 'No albums in this playlist'
+                            : 'No albums (excluding singles) in this playlist',
+                        style: const TextStyle(
                           color: AppColors.white70,
                           fontSize: 16,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   );
                 }
 
-                // トラック一覧を表示
+                // アルバム一覧を表示
                 return SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return TrackListItem(track: tracks[index], index: index);
-                  }, childCount: tracks.length),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return AlbumListItem(album: albums[index]);
+                    },
+                    childCount: albums.length,
+                  ),
                 );
               },
               // ローディング中
@@ -181,7 +218,7 @@ class PlaylistDetailScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Error loading tracks:\n${error.toString()}',
+                            'Error loading albums:\n${error.toString()}',
                             style: const TextStyle(color: Colors.red),
                             textAlign: TextAlign.center,
                           ),
@@ -190,7 +227,7 @@ class PlaylistDetailScreen extends ConsumerWidget {
                           ElevatedButton(
                             onPressed:
                                 () => ref.refresh(
-                                  playlistTracksProvider(playlist.id),
+                                  playlistAlbumsProvider(playlist.id),
                                 ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.spotifyGreen,

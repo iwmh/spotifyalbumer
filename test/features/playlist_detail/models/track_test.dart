@@ -14,7 +14,11 @@ void main() {
               {'name': 'Artist 2'},
             ],
             'album': {
+              'id': 'album123',
               'name': 'Test Album',
+              'album_type': 'album',
+              'total_tracks': 12,
+              'release_date': '2023-01-15',
               'images': [
                 {'url': 'https://example.com/image.jpg'},
               ],
@@ -30,6 +34,10 @@ void main() {
         expect(track.name, 'Test Track');
         expect(track.artists, ['Artist 1', 'Artist 2']);
         expect(track.albumName, 'Test Album');
+        expect(track.albumId, 'album123');
+        expect(track.albumType, 'album');
+        expect(track.albumTotalTracks, 12);
+        expect(track.albumReleaseDate, '2023-01-15');
         expect(track.albumImageUrl, 'https://example.com/image.jpg');
         expect(track.durationMs, 180000);
         expect(track.uri, 'spotify:track:track123');
@@ -42,7 +50,14 @@ void main() {
           'artists': [
             {'name': 'Solo Artist'},
           ],
-          'album': {'name': 'Direct Album', 'images': []},
+          'album': {
+            'id': 'album456',
+            'name': 'Direct Album',
+            'album_type': 'single',
+            'total_tracks': 1,
+            'release_date': '2023-06-01',
+            'images': [],
+          },
           'duration_ms': 120000,
           'uri': 'spotify:track:track456',
         };
@@ -53,6 +68,8 @@ void main() {
         expect(track.name, 'Direct Track');
         expect(track.artists, ['Solo Artist']);
         expect(track.albumName, 'Direct Album');
+        expect(track.albumId, 'album456');
+        expect(track.albumType, 'single');
         expect(track.albumImageUrl, isNull);
         expect(track.durationMs, 120000);
         expect(track.uri, 'spotify:track:track456');
@@ -69,6 +86,10 @@ void main() {
         expect(track.name, 'Unknown Track');
         expect(track.artists, ['Unknown Artist']);
         expect(track.albumName, 'Unknown Album');
+        expect(track.albumId, '');
+        expect(track.albumType, 'album');
+        expect(track.albumTotalTracks, 0);
+        expect(track.albumReleaseDate, '');
         expect(track.albumImageUrl, isNull);
         expect(track.durationMs, 0);
         expect(track.uri, '');
@@ -82,7 +103,14 @@ void main() {
             'artists': [
               {'name': 'Artist'},
             ],
-            'album': {'name': 'Album', 'images': []},
+            'album': {
+              'id': 'album789',
+              'name': 'Album',
+              'album_type': 'album',
+              'total_tracks': 10,
+              'release_date': '2023-03-20',
+              'images': [],
+            },
             'duration_ms': 60000,
             'uri': 'spotify:track:track789',
           },
@@ -101,6 +129,10 @@ void main() {
           name: 'Test',
           artists: ['Artist'],
           albumName: 'Album',
+          albumId: 'album1',
+          albumType: 'album',
+          albumTotalTracks: 10,
+          albumReleaseDate: '2023-01-01',
           durationMs: 180000,
           uri: 'spotify:track:test',
         );
@@ -114,6 +146,10 @@ void main() {
           name: 'Test',
           artists: ['Artist'],
           albumName: 'Album',
+          albumId: 'album1',
+          albumType: 'album',
+          albumTotalTracks: 10,
+          albumReleaseDate: '2023-01-01',
           durationMs: 195000,
           uri: 'spotify:track:test',
         );
@@ -127,6 +163,10 @@ void main() {
           name: 'Test',
           artists: ['Artist'],
           albumName: 'Album',
+          albumId: 'album1',
+          albumType: 'album',
+          albumTotalTracks: 10,
+          albumReleaseDate: '2023-01-01',
           durationMs: 65000,
           uri: 'spotify:track:test',
         );
@@ -140,6 +180,10 @@ void main() {
           name: 'Test',
           artists: ['Artist'],
           albumName: 'Album',
+          albumId: 'album1',
+          albumType: 'album',
+          albumTotalTracks: 10,
+          albumReleaseDate: '2023-01-01',
           durationMs: 0,
           uri: 'spotify:track:test',
         );
@@ -155,6 +199,10 @@ void main() {
           name: 'Test',
           artists: ['Solo Artist'],
           albumName: 'Album',
+          albumId: 'album1',
+          albumType: 'album',
+          albumTotalTracks: 10,
+          albumReleaseDate: '2023-01-01',
           durationMs: 180000,
           uri: 'spotify:track:test',
         );
@@ -168,6 +216,10 @@ void main() {
           name: 'Test',
           artists: ['Artist 1', 'Artist 2', 'Artist 3'],
           albumName: 'Album',
+          albumId: 'album1',
+          albumType: 'album',
+          albumTotalTracks: 10,
+          albumReleaseDate: '2023-01-01',
           durationMs: 180000,
           uri: 'spotify:track:test',
         );
@@ -181,6 +233,10 @@ void main() {
           name: 'Test',
           artists: [],
           albumName: 'Album',
+          albumId: 'album1',
+          albumType: 'album',
+          albumTotalTracks: 10,
+          albumReleaseDate: '2023-01-01',
           durationMs: 180000,
           uri: 'spotify:track:test',
         );
