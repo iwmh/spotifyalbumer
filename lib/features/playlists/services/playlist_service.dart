@@ -103,6 +103,115 @@ class PlaylistService {
     }
   }
 
+  /// アルバムに含まれる全トラックURIを取得
+  ///
+  /// [accessToken] Spotify APIのアクセストークン
+  /// [albumId] 取得対象のアルバムID
+  /// Returns: トラックURIのリスト（例: spotify:track:xxx）
+  Future<List<String>> getAlbumTrackUris(
+    String accessToken,
+    String albumId,
+  ) async {
+    final uris = <String>[];
+    String? nextUrl = '$apiBaseUrl/albums/$albumId/tracks?limit=50';
+
+    while (nextUrl != null) {
+      final response = await http.get(
+        Uri.parse(nextUrl),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final items = data['items'] as List<dynamic>;
+        uris.addAll(
+          items
+              .map((item) => (item as Map<String, dynamic>)['uri'] as String?)
+              .whereType<String>(),
+        );
+        nextUrl = data['next'] as String?;
+      } else {
+        throw Exception('Failed to fetch album tracks: ${response.body}');
+      }
+    }
+
+    return uris;
+  }
+
+  /// アルバム全体の合計再生時間（ミリ秒）を取得
+  ///
+  /// [accessToken] Spotify APIのアクセストークン
+  /// [albumId] 取得対象のアルバムID
+  /// Returns: アルバム全曲の合計再生時間（ミリ秒）
+  Future<int> getAlbumTotalDurationMs(
+    String accessToken,
+    String albumId,
+  ) async {
+    var totalDurationMs = 0;
+    String? nextUrl = '$apiBaseUrl/albums/$albumId/tracks?limit=50';
+
+    while (nextUrl != null) {
+      final response = await http.get(
+        Uri.parse(nextUrl),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final items = data['items'] as List<dynamic>;
+
+        totalDurationMs += items.fold<int>(0, (sum, item) {
+          final duration =
+              (item as Map<String, dynamic>)['duration_ms'] as int?;
+          return sum + (duration ?? 0);
+        });
+
+        nextUrl = data['next'] as String?;
+      } else {
+        throw Exception('Failed to fetch album duration: ${response.body}');
+      }
+    }
+
+    return totalDurationMs;
+  }
+
+  /// 複数トラックをプレイリストに追加
+  ///
+  /// Spotify API仕様に合わせ、1リクエスト100件ずつ分割して追加する
+  /// [accessToken] Spotify APIのアクセストークン
+  /// [playlistId] 追加先プレイリストID
+  /// [trackUris] 追加するトラックURI一覧
+  Future<void> addTracksToPlaylist(
+    String accessToken,
+    String playlistId,
+    List<String> trackUris,
+  ) async {
+    if (trackUris.isEmpty) return;
+
+    const maxBatchSize = 100;
+
+    for (var index = 0; index < trackUris.length; index += maxBatchSize) {
+      final end =
+          (index + maxBatchSize) > trackUris.length
+              ? trackUris.length
+              : (index + maxBatchSize);
+      final batch = trackUris.sublist(index, end);
+
+      final response = await http.post(
+        Uri.parse('$apiBaseUrl/playlists/$playlistId/tracks'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'uris': batch}),
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception('Failed to add tracks to playlist: ${response.body}');
+      }
+    }
+  }
+
   /// プレイリストからトラックを削除
   ///
   /// [accessToken] Spotify APIのアクセストークン

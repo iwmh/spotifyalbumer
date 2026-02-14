@@ -8,7 +8,18 @@ class AlbumListItem extends StatelessWidget {
   /// 表示するアルバム情報
   final AlbumInfo album;
 
-  const AlbumListItem({super.key, required this.album});
+  /// 表示するDurationテキスト（指定がない場合はalbum.formattedDuration）
+  final String? durationText;
+
+  /// クイック追加アクションボタン
+  final List<AlbumQuickAddAction> quickAddActions;
+
+  const AlbumListItem({
+    super.key,
+    required this.album,
+    this.durationText,
+    this.quickAddActions = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +96,7 @@ class AlbumListItem extends StatelessWidget {
                   _buildInfoRow(
                     Icons.access_time,
                     'Duration',
-                    album.formattedDuration,
+                    durationText ?? album.formattedDuration,
                   ),
                   const SizedBox(height: 4),
                   // 総トラック数
@@ -105,11 +116,7 @@ class AlbumListItem extends StatelessWidget {
                   if (album.label != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 4.0),
-                      child: _buildInfoRow(
-                        Icons.label,
-                        'Label',
-                        album.label!,
-                      ),
+                      child: _buildInfoRow(Icons.label, 'Label', album.label!),
                     ),
                   // タイプバッジ（シングル、EP、コンピレーションの場合）
                   if (album.isSingle || album.isEP || album.isCompilation)
@@ -117,11 +124,65 @@ class AlbumListItem extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 8.0),
                       child: _buildTypeBadge(),
                     ),
+                  if (quickAddActions.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children:
+                            quickAddActions
+                                .map((action) => _buildQuickAddAction(action))
+                                .toList(),
+                      ),
+                    ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAddAction(AlbumQuickAddAction action) {
+    final isCompleted = action.isCompleted;
+
+    return ElevatedButton.icon(
+      onPressed: action.isLoading ? null : action.onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            isCompleted
+                ? AppColors.spotifyGreen.withValues(alpha: 0.55)
+                : AppColors.darkGray,
+        foregroundColor: isCompleted ? AppColors.white : AppColors.white70,
+        disabledBackgroundColor:
+            isCompleted
+                ? AppColors.spotifyGreen.withValues(alpha: 0.4)
+                : AppColors.darkGray,
+        disabledForegroundColor: AppColors.white54,
+        side: BorderSide(
+          color: isCompleted ? AppColors.spotifyGreen : AppColors.white54,
+        ),
+        elevation: 0,
+        visualDensity: VisualDensity.compact,
+        minimumSize: const Size(44, 36),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      ),
+      icon:
+          action.isLoading
+              ? const SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                ),
+              )
+              : Icon(isCompleted ? Icons.check : Icons.playlist_add, size: 16),
+      label: Text(
+        action.label,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -145,10 +206,7 @@ class AlbumListItem extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
@@ -172,18 +230,12 @@ class AlbumListItem extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           '$label: ',
-          style: const TextStyle(
-            color: AppColors.white54,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: AppColors.white54, fontSize: 12),
         ),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
-              color: AppColors.white70,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: AppColors.white70, fontSize: 12),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -191,4 +243,18 @@ class AlbumListItem extends StatelessWidget {
       ],
     );
   }
+}
+
+class AlbumQuickAddAction {
+  final String label;
+  final VoidCallback onPressed;
+  final bool isLoading;
+  final bool isCompleted;
+
+  const AlbumQuickAddAction({
+    required this.label,
+    required this.onPressed,
+    this.isLoading = false,
+    this.isCompleted = false,
+  });
 }
