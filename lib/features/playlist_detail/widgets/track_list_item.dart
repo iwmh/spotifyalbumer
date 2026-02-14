@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/track.dart';
 import '../../../shared/constants/app_colors.dart';
 
+/// トラックリストのアイテムウィジェット
+/// プレイリスト詳細画面でトラック情報を表示するためのウィジェット
 class TrackListItem extends StatelessWidget {
+  /// 表示するトラック情報
   final Track track;
+
+  /// トラックの順番（0始まり）
   final int index;
 
   const TrackListItem({super.key, required this.track, required this.index});
@@ -15,17 +20,17 @@ class TrackListItem extends StatelessWidget {
       leading: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Track number
+          // トラック番号を表示
           SizedBox(
             width: 30,
             child: Text(
-              '${index + 1}',
+              '${index + 1}', // 1始まりで表示
               style: const TextStyle(color: AppColors.white54, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(width: 12),
-          // Album art
+          // アルバムアート
           Container(
             width: 48,
             height: 48,
@@ -40,6 +45,7 @@ class TrackListItem extends StatelessWidget {
                       child: Image.network(
                         track.albumImageUrl!,
                         fit: BoxFit.cover,
+                        // 画像読み込みエラー時の代替表示
                         errorBuilder: (context, error, stackTrace) {
                           return const Icon(
                             Icons.music_note,
@@ -49,6 +55,7 @@ class TrackListItem extends StatelessWidget {
                         },
                       ),
                     )
+                    // 画像URLがない場合はアイコンを表示
                     : const Icon(
                       Icons.music_note,
                       color: AppColors.white54,
@@ -57,6 +64,7 @@ class TrackListItem extends StatelessWidget {
           ),
         ],
       ),
+      // トラック名
       title: Text(
         track.name,
         style: const TextStyle(
@@ -67,18 +75,19 @@ class TrackListItem extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
+      // アーティスト名（複数の場合はカンマ区切り）
       subtitle: Text(
         track.artistsString,
         style: const TextStyle(color: AppColors.white70, fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
+      // 再生時間
       trailing: Text(
         track.formattedDuration,
         style: const TextStyle(color: AppColors.white54, fontSize: 14),
       ),
       onTap: () {
-        // TODO: Implement play track functionality
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Play: ${track.name}'),

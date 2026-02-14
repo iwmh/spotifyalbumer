@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spotify_albumer/features/playlists/models/track.dart';
+import 'package:spotify_albumer/features/playlist_detail/models/track.dart';
 
 void main() {
   group('Track', () {

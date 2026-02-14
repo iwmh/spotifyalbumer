@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/playlist_providers.dart';
+import '../providers/playlists_provider.dart';
 import '../widgets/playlist_card.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../../../shared/constants/app_colors.dart';
 
+/// プレイリスト一覧画面
+/// ユーザーのSpotifyプレイリスト（自分が作成したものとフォローしているもの）を表示
 class PlaylistsScreen extends ConsumerWidget {
   const PlaylistsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // プレイリストの非同期状態を監視
     final playlistsAsync = ref.watch(playlistsProvider);
 
     return Scaffold(
@@ -22,13 +25,16 @@ class PlaylistsScreen extends ConsumerWidget {
         backgroundColor: AppColors.spotifyBlack,
         elevation: 0,
         actions: [
+          // ログアウトボタン
           IconButton(
             icon: const Icon(Icons.logout, color: AppColors.white),
             onPressed: () => ref.read(authProvider.notifier).logout(),
           ),
         ],
       ),
+      // AsyncValueの状態によって異なるUIを表示
       body: playlistsAsync.when(
+        // データ取得成功時
         data: (playlists) {
           if (playlists.isEmpty) {
             return const Center(
@@ -39,6 +45,7 @@ class PlaylistsScreen extends ConsumerWidget {
             );
           }
 
+          // 引き下げ更新機能付きのプレイリスト一覧
           return RefreshIndicator(
             onRefresh: () => ref.refresh(playlistsProvider.future),
             child: ListView.builder(
@@ -50,6 +57,7 @@ class PlaylistsScreen extends ConsumerWidget {
             ),
           );
         },
+        // ローディング中
         loading:
             () => const Center(
               child: CircularProgressIndicator(
@@ -58,6 +66,7 @@ class PlaylistsScreen extends ConsumerWidget {
                 ),
               ),
             ),
+        // エラー発生時
         error:
             (error, stack) => Center(
               child: Column(
@@ -71,6 +80,7 @@ class PlaylistsScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
+                  // 再試行ボタン
                   ElevatedButton(
                     onPressed: () => ref.refresh(playlistsProvider),
                     style: ElevatedButton.styleFrom(

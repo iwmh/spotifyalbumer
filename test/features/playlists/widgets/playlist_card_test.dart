@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spotify_albumer/features/playlists/models/playlist.dart';
-import 'package:spotify_albumer/features/playlists/screens/playlist_detail_screen.dart';
+import 'package:spotify_albumer/features/playlist_detail/screens/playlist_detail_screen.dart';
 import 'package:spotify_albumer/features/playlists/widgets/playlist_card.dart';
 
 void main() {

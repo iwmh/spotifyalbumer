@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spotify_albumer/features/playlists/models/playlist.dart';
-import 'package:spotify_albumer/features/playlists/models/track.dart';
-import 'package:spotify_albumer/features/playlists/providers/playlist_providers.dart';
-import 'package:spotify_albumer/features/playlists/screens/playlist_detail_screen.dart';
-import 'package:spotify_albumer/features/playlists/widgets/track_list_item.dart';
+import 'package:spotify_albumer/features/playlist_detail/models/track.dart';
+import 'package:spotify_albumer/features/playlist_detail/providers/playlist_tracks_provider.dart';
+import 'package:spotify_albumer/features/playlist_detail/screens/playlist_detail_screen.dart';
+import 'package:spotify_albumer/features/playlist_detail/widgets/track_list_item.dart';
 
 void main() {
   group('PlaylistDetailScreen', () {

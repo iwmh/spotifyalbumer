@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spotify_albumer/features/playlists/models/track.dart';
-import 'package:spotify_albumer/features/playlists/widgets/track_list_item.dart';
+import 'package:spotify_albumer/features/playlist_detail/models/track.dart';
+import 'package:spotify_albumer/features/playlist_detail/widgets/track_list_item.dart';
 
 void main() {
   group('TrackListItem', () {
