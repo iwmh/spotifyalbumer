@@ -78,7 +78,7 @@ class PlaylistDetailScreen extends ConsumerWidget {
                           ref.read(includeSinglesProvider.notifier).state =
                               value;
                         },
-                        activeColor: AppColors.spotifyGreen,
+                        activeTrackColor: AppColors.spotifyGreen,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                     ],
