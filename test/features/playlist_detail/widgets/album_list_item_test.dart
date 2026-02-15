@@ -22,9 +22,7 @@ void main() {
 
     testWidgets('アルバム情報を正しく表示', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: testAlbum)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: testAlbum))),
       );
 
       // アルバムタイトルを確認
@@ -76,9 +74,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: singleAlbum)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: singleAlbum))),
       );
 
       // SINGLEバッジを確認
@@ -97,9 +93,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: epAlbum)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: epAlbum))),
       );
 
       // EPバッジを確認
@@ -140,9 +134,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: normalAlbum)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: normalAlbum))),
       );
 
       // バッジが表示されないことを確認
@@ -164,9 +156,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: albumWithLabel)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: albumWithLabel))),
       );
 
       // レーベル名を確認
@@ -185,9 +175,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: longTitleAlbum)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: longTitleAlbum))),
       );
 
       final textFinder = find.text(
@@ -202,9 +190,7 @@ void main() {
 
     testWidgets('情報アイコンを正しく表示', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: testAlbum)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: testAlbum))),
       );
 
       // 各情報アイコンを確認
@@ -215,9 +201,7 @@ void main() {
 
     testWidgets('カードウィジェットとして表示', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: AlbumListItem(album: testAlbum)),
-        ),
+        MaterialApp(home: Scaffold(body: AlbumListItem(album: testAlbum))),
       );
 
       // Cardウィジェットを確認

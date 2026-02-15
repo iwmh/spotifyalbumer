@@ -43,15 +43,15 @@ void main() {
         expect(album.totalTracks, 12);
         expect(album.releaseDate, '2023-01-15');
         expect(album.totalDurationMs, 390000); // 180000 + 210000
-        expect(album.artists, containsAll(['Artist 1', 'Artist 2', 'Artist 3']));
+        expect(
+          album.artists,
+          containsAll(['Artist 1', 'Artist 2', 'Artist 3']),
+        );
         expect(album.label, isNull);
       });
 
       test('空のトラックリストでエラーをスロー', () {
-        expect(
-          () => AlbumInfo.fromTracks([]),
-          throwsA(isA<ArgumentError>()),
-        );
+        expect(() => AlbumInfo.fromTracks([]), throwsA(isA<ArgumentError>()));
       });
 
       test('重複するアーティストを除外', () {
