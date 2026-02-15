@@ -122,13 +122,77 @@ version: 1.0.0+1
 
 ## 2. Android - Google Play Store公開
 
-### 2.1 署名キーの作成
+### 2.1 AndroidManifestの確認
+
+デフォルトの[App Manifest](https://developer.android.com/guide/topics/manifest/manifest-intro)ファイルを確認します。
+
+**`android/app/src/main/AndroidManifest.xml`:**
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:label="Spotify Albumer"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        ...
+    </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
+```
+
+**確認項目:**
+
+| 要素 | 説明 |
+|------|------|
+| `android:label` | アプリ名（ストアとデバイスに表示） |
+| `android:icon` | アプリアイコンへの参照 |
+| `uses-permission` | インターネット接続が必要な場合は`INTERNET`権限を追加 |
+
+### 2.2 Material Componentsの有効化
+
+アプリが[platform views](https://docs.flutter.dev/platform-integration/android/platform-views)を使用する場合、Material Componentsを有効化することを推奨します。
+
+**1. `android/app/build.gradle.kts`に依存関係を追加:**
+
+```kotlin
+dependencies {
+    // ...
+    implementation("com.google.android.material:material:1.11.0")
+    // 最新バージョンは https://maven.google.com/ で確認
+}
+```
+
+**2. `android/app/src/main/res/values/styles.xml`のライトテーマを設定:**
+
+```xml
+-<style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
++<style name="NormalTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+```
+
+**3. `android/app/src/main/res/values-night/styles.xml`のダークテーマを設定:**
+
+```xml
+-<style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
++<style name="NormalTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+```
+
+詳細は[Material Components for Android](https://m3.material.io/develop/android/mdc-android)を参照してください。
+
+### 2.3 署名キーの作成
 
 アプリに署名するためのキーストアを作成します。
 
+**Windows (PowerShell):**
+```powershell
+keytool -genkey -v -keystore "$env:USERPROFILE\upload-keystore.jks" `
+        -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 `
+        -alias upload
+```
+
+**macOS/Linux:**
 ```bash
-# キーストアの作成
-keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA \
+        -keysize 2048 -validity 10000 -alias upload
 ```
 
 **入力項目:**
@@ -142,9 +206,9 @@ keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -vali
 
 ⚠️ **重要:** キーストアファイルとパスワードは**絶対に紛失しないでください**。紛失するとアプリの更新ができなくなります。
 
-### 2.2 署名設定
+### 2.4 署名設定
 
-#### 2.2.1 key.properties ファイルの作成
+#### 2.4.1 key.properties ファイルの作成
 
 `android/key.properties` を作成（**Gitにコミットしない**）:
 
@@ -155,7 +219,13 @@ keyAlias=upload
 storeFile=<キーストアファイルへの絶対パス>
 ```
 
-#### 2.2.2 .gitignore に追加
+**storeFileのパス例:**
+- Windows: C:\\Users\\<ユーザー名>\\upload-keystore.jks（バックスラッシュを2つ `\\` にする）
+- macOS/Linux: `/Users/<ユーザー名>/upload-keystore.jks`
+
+⚠️ **注意:** Windowsではパスのバックスラッシュを `\\` とエスケープする必要があります。
+
+#### 2.4.2 .gitignore に追加
 
 ```gitignore
 # Android signing
@@ -164,11 +234,14 @@ android/key.properties
 *.keystore
 ```
 
-#### 2.2.3 build.gradle.kts の修正
+#### 2.4.3 build.gradle.kts の修正
 
 `android/app/build.gradle.kts` を以下のように修正:
 
 ```kotlin
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -176,16 +249,16 @@ plugins {
 }
 
 // key.properties を読み込む
+val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
-val keystoreProperties = java.util.Properties()
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
     namespace = "com.iwmh.spotifyalbumer"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -197,37 +270,31 @@ android {
     }
 
     defaultConfig {
+        // ⚠️ 重要: applicationId は一度公開したら変更不可
         applicationId = "com.iwmh.spotifyalbumer"
+        // minSdk: アプリがサポートする最小Androidバージョン
         minSdk = flutter.minSdkVersion
+        // targetSdk: アプリが設計・テストされたAndroidバージョン
         targetSdk = flutter.targetSdkVersion
+        // versionCode: ストア内部で使用（公開ごとに増やす必要あり）
         versionCode = flutter.versionCode
+        // versionName: ユーザーに表示されるバージョン
         versionName = flutter.versionName
     }
 
     signingConfigs {
         create("release") {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-            }
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+            storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            // リリースビルドで署名設定を使用
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
@@ -237,35 +304,100 @@ flutter {
 }
 ```
 
-#### 2.2.4 ProGuard設定の作成
+⚠️ **注意:** Gradleファイルを変更した後は `flutter clean` を実行してキャッシュをクリアしてください。
 
-`android/app/proguard-rules.pro` を作成:
+#### 2.4.4 R8によるコード縮小
 
-```proguard
-# Flutter関連
--keep class io.flutter.app.** { *; }
--keep class io.flutter.plugin.** { *; }
--keep class io.flutter.util.** { *; }
--keep class io.flutter.view.** { *; }
--keep class io.flutter.** { *; }
--keep class io.flutter.plugins.** { *; }
+[R8](https://developer.android.com/studio/build/shrink-code)は、Googleの新しいコード圧縮ツールです。リリースビルド（App BundleまたはAPK）では**デフォルトで有効**になっています。
 
-# アプリ固有のルール（必要に応じて追加）
--keep class com.iwmh.spotifyalbumer.** { *; }
-```
+- コード縮小を無効化する場合: `flutter build appbundle --no-shrink` または `flutter build apk --no-shrink`
+- 難読化と圧縮により、ビルド時間が大幅に延びる可能性があります
 
-### 2.3 リリースビルドの作成
+⚠️ **注意:** `--[no-]shrink`フラグは現在効果がありません。リリースビルドでは常にコード縮小が有効です。詳細は[Shrink, obfuscate, and optimize your app](https://developer.android.com/studio/build/shrink-code)を参照してください。
+
+#### 2.4.5 Multidex対応
+
+大規模なアプリや大きなプラグインを使用する場合、最小API 20以下をターゲットにすると、Androidの64kメソッド数制限に達する可能性があります。
+
+**Flutterツールの自動対応:**
+
+1. ビルドエラーが発生すると、Flutterツールが自動的にmultidexの必要性を検出
+2. プロンプトで確認を求められ、`y`を入力すると自動設定
+3. 自動的に`androidx.multidex:multidex`に依存し、`FlutterMultiDexApplication`を使用
+
+**手動で有効化する場合:**
 
 ```bash
-# App Bundle形式（推奨）
-fvm flutter build appbundle --release
+# コマンドラインから
+fvm flutter run --debug
+# プロンプトが表示されたら「y」を入力
+```
+
+**IDEでビルドエラーが表示される場合:**
+- エラーメッセージのプロンプトに従って有効化
+
+⚠️ **注意:** 
+- Android SDK 21以降をターゲットにする場合、multidexはネイティブで含まれています
+- 手動でmultidexを設定する場合は、[Android公式ガイド](https://developer.android.com/studio/build/multidex)を参照
+- multidex keep fileに以下を含める必要があります:
+  ```
+  io/flutter/embedding/engine/loader/FlutterLoader.class
+  io/flutter/util/PathUtils.class
+  ```
+
+### 2.5 リリースビルドの作成
+
+#### 2.5.1 App Bundleのビルド（推奨）
+
+```bash
+# 基本コマンド
+fvm flutter build appbundle
+
+# コード難読化あり（推奨）
+fvm flutter build appbundle --obfuscate --split-debug-info=build/app/outputs/symbols
+
+# バージョン番号を上書き
+fvm flutter build appbundle --build-name=1.0.1 --build-number=2
 
 # 出力先: build/app/outputs/bundle/release/app-release.aab
 ```
 
-### 2.4 Google Play Consoleでの設定
+**オプション説明:**
+- `--obfuscate`: Dartコードを難読化してリバースエンジニアリングを困難にする
+- `--split-debug-info`: デバッグシンボルを別ファイルに分離（スタックトレースの解析に必要）
+- `--build-name`: `pubspec.yaml`のバージョン名を上書き（Androidの`versionName`）
+- `--build-number`: `pubspec.yaml`のビルド番号を上書き（Androidの`versionCode`）
 
-#### 2.4.1 アプリの作成
+デフォルトで、App Bundleには以下のABI用のコードが含まれます:
+- [armeabi-v7a](https://developer.android.com/ndk/guides/abis#v7a) (ARM 32-bit)
+- [arm64-v8a](https://developer.android.com/ndk/guides/abis#arm64-v8a) (ARM 64-bit)
+- [x86-64](https://developer.android.com/ndk/guides/abis#86-64) (x86 64-bit)
+
+#### 2.5.2 APKのビルド（代替手段）
+
+Google Play Store以外で配布する場合や、ストアがApp Bundleに対応していない場合にAPKを使用します。
+
+```bash
+# ABIごとに分割したAPK（推奨）
+fvm flutter build apk --split-per-abi
+
+# 出力先:
+# - build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+# - build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+# - build/app/outputs/flutter-apk/app-x86_64-release.apk
+
+# Fat APK（すべてのABIを含む、サイズ大）
+fvm flutter build apk
+```
+
+**`--split-per-abi`の利点:**
+- 各APKのサイズが小さくなる
+- ユーザーは自分のデバイスに必要なバイナリのみダウンロード
+- Fat APKは不要なネイティブバイナリを含むためサイズが大きい
+
+### 2.6 Google Play Consoleでの設定
+
+#### 2.6.1 アプリの作成
 
 1. Google Play Console にログイン
 2. 「アプリを作成」をクリック
@@ -276,7 +408,7 @@ fvm flutter build appbundle --release
    - 無料または有料: 無料
    - 宣言（各項目にチェック）
 
-#### 2.4.2 ストア掲載情報の設定
+#### 2.6.2 ストア掲載情報の設定
 
 **メインのストア掲載情報:**
 - アプリ名（30文字以内）
@@ -289,14 +421,14 @@ fvm flutter build appbundle --release
   - 7インチタブレット
   - 10インチタブレット
 
-#### 2.4.3 コンテンツのレーティング
+#### 2.6.3 コンテンツのレーティング
 
 質問票に回答してレーティングを取得:
 1. 「ポリシー」→「アプリのコンテンツ」→「コンテンツのレーティング」
 2. 質問に正直に回答
 3. レーティングを取得
 
-#### 2.4.4 プライバシーポリシー
+#### 2.6.4 プライバシーポリシー
 
 プライバシーポリシーのURLが必要です。
 - 自分のWebサイトに掲載
@@ -319,7 +451,7 @@ fvm flutter build appbundle --release
 email@example.com
 ```
 
-### 2.5 内部テストへの公開
+### 2.7 内部テストへの公開
 
 1. 「テスト」→「内部テスト」を選択
 2. 「新しいリリースを作成」
@@ -328,7 +460,7 @@ email@example.com
 5. テスターのメールアドレスを追加
 6. 「リリースのレビュー」→「内部テストとして公開開始」
 
-### 2.6 本番公開
+### 2.8 本番公開
 
 内部テストで問題なければ:
 1. 「本番」→「新しいリリースを作成」
@@ -370,6 +502,9 @@ email@example.com
    - Mac の「キーチェーンアクセス」→「証明書アシスタント」→「認証局に証明書を要求」
 4. 証明書をダウンロードしてダブルクリックでインストール
 
+※ ダブルクリックでインストールできない場合
+「ログイン」を選択　→　「証明書」を選択　→　ファイルから「読み込む」
+
 **プロビジョニングプロファイルの作成:**
 1. 「Profiles」→「+」ボタン
 2. 「App Store Connect」を選択
@@ -388,37 +523,208 @@ open Runner.xcworkspace
 
 **Xcodeでの設定項目:**
 
-1. **Signing & Capabilities**
-   - Team: 自分の開発者アカウント
-   - Bundle Identifier: `com.iwmh.spotifyalbumer`
-   - Signing Certificate: Distribution
-   - Provisioning Profile: App Store用プロファイル
-
-2. **General**
+1. **General タブ**
    - Display Name: `Spotify Albumer`
+   - Bundle Identifier: `com.iwmh.spotifyalbumer`
    - Version: `1.0.0`
    - Build: `1`
 
-3. **Build Settings**
-   - iOS Deployment Target: `12.0` 以上推奨
+2. **Signing & Capabilities**
+   - Team: 自分の開発者アカウント
+   - Bundle Identifier: `com.iwmh.spotifyalbumer`
+   - Automatically manage signing: 有効（ほとんどのアプリで十分）
+   - Signing Certificate: Distribution
+   - Provisioning Profile: App Store用プロファイル
+
+3. **Build Settings タブ**
+   - iOS Deployment Target: `13.0` 以上（Flutterは iOS 13+ をサポート）
+
+⚠️ **注意:** 複雑なシナリオの場合は[Code Signing Guide](https://developer.apple.com/library/content/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html)を参照してください。
 
 ### 3.3 リリースビルドの作成
 
-```bash
-# iOSビルド
-fvm flutter build ipa --release
+#### 3.3.1 バージョン番号の更新
 
-# 出力先: build/ios/ipa/spotify_albumer.ipa
+`pubspec.yaml`でバージョンを管理：
+
+```yaml
+version: 1.0.0+1
+# 形式: major.minor.patch+buildNumber
+# 1.0.0 = CFBundleShortVersionString （ユーザーに表示）
+# +1 = CFBundleVersion （ストア内部で使用、公開ごとに増やす）
 ```
 
-または Xcode から:
-1. Product → Archive
-2. アーカイブ完了後、Organizer が開く
-3. 「Distribute App」→「App Store Connect」
+Xcodeで上書きすることも可能：
+1. `Runner.xcworkspace`を開く
+2. Runner ターゲットを選択
+3. Identityセクションで Version と Build を更新
 
-### 3.4 App Store Connectでの設定
+#### 3.3.2 ビルドコマンド
 
-#### 3.4.1 アプリの作成
+```bash
+# 基本コマンド
+fvm flutter build ipa
+
+# コード難読化あり（推奨）
+fvm flutter build ipa --obfuscate --split-debug-info=build/app/outputs/symbols
+
+# バージョン番号を上書き
+fvm flutter build ipa --build-name=1.0.1 --build-number=2
+
+# 出力先:
+# - build/ios/archive/MyApp.xcarchive (アーカイブ)
+# - build/ios/ipa/spotify_albumer.ipa (IPAファイル)
+```
+
+**オプション説明:**
+- `--obfuscate`: Dartコードを難読化してリバースエンジニアリングを困難にする
+- `--split-debug-info`: デバッグシンボルを別ファイルに分離（スタックトレースの解析に必要）
+- `--build-name`: `pubspec.yaml`のバージョン名を上書き（iOSの`CFBundleShortVersionString`）
+- `--build-number`: `pubspec.yaml`のビルド番号を上書き（iOSの`CFBundleVersion`）
+
+**App Store以外への配布:**
+
+App Store以外に配布する場合は`--export-method`を指定：
+
+```bash
+# Ad Hoc配布（限定デバイス）
+fvm flutter build ipa --export-method ad-hoc
+
+# Development（開発チーム）
+fvm flutter build ipa --export-method development
+
+# Enterprise（企業内配布）
+fvm flutter build ipa --export-method enterprise
+```
+
+⚠️ **注意:** `flutter build ipa --export-method`が利用できないFlutterバージョンでは、`build/ios/archive/MyApp.xcarchive`をXcodeで開いてアップロードしてください。
+
+#### 3.3.3 App Store Connectへのアップロード
+
+以下の3つの方法があります：
+
+**方法1: Apple Transporterアプリ（推奨）**
+
+1. [Apple Transporter](https://apps.apple.com/us/app/transporter/id1450874784)をインストール
+2. アプリを開く
+3. `build/ios/ipa/*.ipa`をドラッグ＆ドロップ
+4. アップロード完了を待つ
+
+**方法2: コマンドライン**
+
+```bash
+xcrun altool --upload-app --type ios -f build/ios/ipa/*.ipa \
+  --apiKey your_api_key --apiIssuer your_issuer_id
+```
+
+`man altool`でApp Store Connect APIキー認証の詳細を確認できます。
+
+**方法3: Xcodeから**
+
+1. `build/ios/archive/MyApp.xcarchive`をXcodeで開く
+2. 「Validate App」ボタンで検証
+3. 問題があれば修正して再ビルド
+4. 「Distribute App」をクリック
+5. 「App Store Connect」を選択
+6. アップロード完了
+
+⚠️ **ExportOptions.plistの再利用:**
+
+Xcodeでエクスポートすると、IPAと一緒に`ExportOptions.plist`ファイルが作成されます。これを使って同じオプションでIPAを再作成できます：
+
+```bash
+fvm flutter build ipa --export-options-plist=path/to/ExportOptions.plist
+```
+
+**アップロード後:**
+- 30分以内にビルド検証完了のメールが届きます
+- App Store Connectの「Activity」タブでステータス確認
+- TestFlightまたはApp Storeへのリリースが可能になります
+
+### 3.4 Codemagic CLI toolsによる代替ビルド方法（上級者向け）
+
+この方法では、Flutter buildコマンドと[Codemagic CLI Tools](https://github.com/codemagic-ci-cd/cli-tools)を使用して、配布証明書を完全にコントロールしながらビルドアーカイブを作成できます。
+
+#### 3.4.1 前提条件
+
+macOSマシンが必要です。ターミナルで以下を実行：
+
+**1. Codemagic CLI toolsのインストール:**
+
+```bash
+pip3 install codemagic-cli-tools
+```
+
+**2. App Store Connect APIキーの設定:**
+
+[App Store Connect API Key](https://appstoreconnect.apple.com/access/api)を作成し（App Managerアクセス）、環境変数を設定：
+
+```bash
+export APP_STORE_CONNECT_ISSUER_ID=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+export APP_STORE_CONNECT_KEY_IDENTIFIER=ABC1234567
+export APP_STORE_CONNECT_PRIVATE_KEY=`cat /path/to/api/key/AuthKey_XXXYYYZZZ.p8`
+```
+
+**3. iOS Distribution証明書の準備:**
+
+既存の証明書がある場合、秘密鍵をエクスポート：
+
+```bash
+openssl pkcs12 -in <certificate_name>.p12 -nodes -nocerts | openssl rsa -out cert_key
+```
+
+または新しい秘密鍵を作成：
+
+```bash
+ssh-keygen -t rsa -b 2048 -m PEM -f cert_key -q -N ""
+```
+
+#### 3.4.2 ビルドとアップロード手順
+
+```bash
+# 1. 一時的なキーチェーンを初期化
+keychain initialize
+
+# 2. App Store Connectから署名ファイルを取得
+app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
+    --platform IOS \
+    --type IOS_APP_STORE \
+    --certificate-key=@file:/path/to/cert_key \
+    --create
+
+# 3. 証明書をキーチェーンに追加
+keychain add-certificates
+
+# 4. Xcodeプロジェクト設定を更新
+xcode-project use-profiles
+
+# 5. Flutter依存関係をインストール
+flutter packages pub get
+
+# 6. CocoaPods依存関係をインストール
+find . -name "Podfile" -execdir pod install \;
+
+# 7. iOSプロジェクトをビルド
+flutter build ipa --release \
+    --export-options-plist=$HOME/export_options.plist
+
+# 8. App Store Connectに公開
+app-store-connect publish \
+    --path $(find $(pwd) -name "*.ipa")
+
+# 9. ログインキーチェーンを復元（重要！）
+keychain use-login
+```
+
+⚠️ **重要:** `keychain use-login`を実行しないと、Mac上の他のアプリで認証問題が発生する可能性があります。
+
+#### 3.4.3 アップロード後
+
+30分以内にビルド検証完了のメールが届き、TestFlightまたはApp Storeへのリリースが可能になります。
+
+### 3.5 App Store Connectでの設定
+
+#### 3.5.1 アプリの作成
 
 1. [App Store Connect](https://appstoreconnect.apple.com/) にアクセス
 2. 「マイApp」→「+」→「新規App」
@@ -429,7 +735,7 @@ fvm flutter build ipa --release
    - バンドルID: `com.iwmh.spotifyalbumer`
    - SKU: `spotify-albumer-001`（任意の一意な文字列）
 
-#### 3.4.2 App情報の設定
+#### 3.5.2 App情報の設定
 
 **App情報タブ:**
 - 名前（ストアに表示）
@@ -442,7 +748,7 @@ fvm flutter build ipa --release
 - 価格: 無料
 - 配信する国/地域を選択
 
-#### 3.4.3 バージョン情報
+#### 3.5.3 バージョン情報
 
 **App Store タブ:**
 - スクリーンショット（必須）
@@ -457,14 +763,14 @@ fvm flutter build ipa --release
 - マーケティングURL（オプション）
 - プライバシーポリシーURL
 
-#### 3.4.4 App Review情報
+#### 3.5.4 App Review情報
 
 - 連絡先情報
 - サインイン情報（テストアカウント）
 - 添付ファイル（必要に応じて）
 - 備考（審査員への説明）
 
-### 3.5 TestFlightでのテスト
+### 3.6 TestFlightでのテスト
 
 1. Xcode または Transporter でビルドをアップロード
 2. App Store Connect で「TestFlight」タブ
@@ -473,7 +779,7 @@ fvm flutter build ipa --release
    - 内部テスター: チームメンバー（最大100人）
    - 外部テスター: メールで招待（最大10,000人、審査必要）
 
-### 3.6 本番公開
+### 3.7 本番公開
 
 1. App Store タブで「ビルド」を選択
 2. 「審査へ提出」
@@ -607,7 +913,7 @@ on:
           - production
 
 env:
-  FLUTTER_VERSION: '3.27.1'
+  FLUTTER_VERSION: '3.38.6'  # 最新安定版を使用
 
 jobs:
   build-and-deploy:
@@ -682,7 +988,7 @@ on:
           - appstore
 
 env:
-  FLUTTER_VERSION: '3.27.1'
+  FLUTTER_VERSION: '3.38.6'  # 最新安定版を使用
 
 jobs:
   build-and-deploy:
@@ -1548,6 +1854,41 @@ No signing certificate "iOS Distribution" found
 - 不要なステップを削除
 - macOS ランナーは時間がかかるため注意
 
+### 6.4 R8/ProGuard の問題（Android）
+
+#### Missing classes detected while running R8
+
+**エラー例:**
+```
+ERROR: Missing classes detected while running R8...
+Missing class com.google.android.play.core.splitcompat.SplitCompatApplication
+```
+
+**原因:**
+- R8/ProGuardがコード縮小時にGoogle Play Core等のクラスを見つけられない
+- Deferred Componentsなど、Flutterが条件付きで参照するクラスが存在しない
+
+**解決策:**
+
+1. **生成されたルールを確認:**
+   ```
+   build/app/outputs/mapping/release/missing_rules.txt
+   ```
+
+2. **`android/app/proguard-rules.pro`に追加:**
+   ```proguard
+   # Google Play Core (未使用でも警告抑制)
+   -dontwarn com.google.android.play.core.splitcompat.SplitCompatApplication
+   -dontwarn com.google.android.play.core.splitinstall.**
+   -dontwarn com.google.android.play.core.tasks.**
+   ```
+
+3. **クリーンビルド:**
+   ```bash
+   fvm flutter clean
+   fvm flutter build appbundle --obfuscate --split-debug-info=build/app/outputs/symbols
+   ```
+
 ---
 
 ## 付録
@@ -1588,6 +1929,7 @@ No signing certificate "iOS Distribution" found
 | 日付 | 内容 |
 |------|------|
 | 2024-12-22 | 初版作成 |
+| 2026-02-15 | Flutter公式ドキュメントに基づき大幅更新<br>- Android: Material Components、Multidex、R8、詳細なビルドオプションを追加<br>- iOS: コード難読化、Apple Transporter、Codemagic CLI toolsを追加<br>- 共通: バージョン上書きフラグ、Flutter 3.38.6対応 |
 
 ---
 

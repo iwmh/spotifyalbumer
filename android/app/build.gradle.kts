@@ -30,31 +30,30 @@ android {
     }
 
     defaultConfig {
+        // 一度公開したら変更不可
         applicationId = "com.iwmh.spotifyalbumer"
+        // アプリがサポートする最小Androidバージョン
         minSdk = flutter.minSdkVersion
+        // アプリが設計・テストされたAndroidバージョン
         targetSdk = flutter.targetSdkVersion
+        // ストア内部で使用
         versionCode = flutter.versionCode
+        // ユーザーに表示されあるバージョン
         versionName = flutter.versionName
     }
 
     signingConfigs {
         create("release") {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
-            }
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+            storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -62,6 +61,10 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    dependencies {
+        implementation("com.google.android.material:material:1.13.0")
     }
 }
 
