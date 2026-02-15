@@ -158,3 +158,6 @@ class MyWidget extends ConsumerWidget {
 - **UXの場合**: "HCI/UXガイドラインに従ってこのスクリーンを設計"
 
 Copilotは、適切なスキルとエージェントを自動的に参照し、簡潔で焦点を絞ったインタラクションを維持しながら、コンテキストを考慮した支援を提供します。
+
+## その他
+- .github/copilot-instructions.md の内容や、.github/skillsの内容は、改善が必要な場合は随時更新して問題ありません。
